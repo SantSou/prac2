@@ -287,7 +287,7 @@ DataMemory
 )
 RAM(
 	.WriteData(ReadData2_wire),
-	.Address(ALUResult_wire),
+	.Address(ALUResult_wire[10:2]),
 	.MemWrite(MemWrite_wire),
 	.MemRead(MemRead_wire), 
 	.clk(clk),
