@@ -34,6 +34,9 @@ localparam ADD = 4'b0011;
 localparam SUB = 4'b0100;
 localparam RSHIFT = 4'b0101;
 localparam LSHIFT = 4'b0110;
+
+localparam LW = 4'b1000;
+localparam SW = 4'b1100;
    
    always @ (A or B or ALUOperation or shamt)
      begin
@@ -49,7 +52,7 @@ localparam LSHIFT = 4'b0110;
 		  NOR: // sub
 			ALUResult=~(A | B);
 		  LSHIFT:
-			ALUResult=B<<shamt;//Rs=T, Rs=A
+			ALUResult=B<<shamt;//RT=B, Rs=A
 		  RSHIFT:
 			ALUResult=B>>shamt;
 		default:

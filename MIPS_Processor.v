@@ -61,12 +61,19 @@ wire jr_wire;
 wire jal_wire;
 wire branch_or_jr_wire;
 
+wire MemRead_wire;
+wire MemtoReg_wire;
+wire MemWrite_wire;
+
 wire [2:0] ALUOp_wire;
 wire [3:0] ALUOperation_wire;
 wire [4:0] WriteRegister_wire;
 
 wire [4:0] AddressRegister_wire;
 wire [31:0] Write2Register_wire;
+
+wire [7:0] RAM_OUT_wire;
+wire [31:0] RAM_or_LUI_wire;
 
 wire [31:0] MUX_PC_wire;
 wire [31:0] PC_wire;
@@ -98,6 +105,9 @@ ControlUnit
 	.lui(Lui_selec),
 	.jump(jump_wire),
 	.jal(jal_wire),
+	.MemRead(MemRead_wire),
+	.MemtoReg(MemtoReg_wire),
+	.MemWrite(MemWrite_wire),
 	.RegWrite(RegWrite_wire)
 );
 
@@ -128,10 +138,7 @@ PC_Puls_4
 );
 
 //******************************************************************/
-//******************************************************************/
-//******************************************************************/
-//******************************************************************/
-//******************************************************************/
+//******************************************************************/jumps & branches
 Adder32bits
 Address_plus_PC
 (
@@ -170,7 +177,7 @@ Multiplexer2to1
 )
 JALMux_data(
 	.Selector(jal_wire),
-	.MUX_Data0(ALU_or_LUI_wire),
+	.MUX_Data0(RAM_or_LUI_wire),
 	.MUX_Data1(PC_4_wire),
 	.MUX_Output(Write2Register_wire)
 );
@@ -186,8 +193,6 @@ JALMux(
 	.MUX_Output(AddressRegister_wire)
 );
 //*****************************MUX to choose register 31
-//******************************************************************/
-//******************************************************************/
 //******************************************************************/
 Multiplexer2to1
 #(
@@ -255,7 +260,7 @@ ArithmeticLogicUnit
 	.shamt(Instruction_wire[10:6]),
 	.ALUResult(ALUResult_wire)
 );
-
+//********************************************LUI CONTROL
 Multiplexer2to1
 #(
 	.NBits(32)
@@ -272,7 +277,38 @@ luiModule lui(
    .ExtendedOutput(LuiWire)
 );
 
+//********************************************RAM CONTROL
+
+DataMemory 
+
+#(	
+	.DATA_WIDTH(8)
+	//.MEMORY_DEPTH = 256
+)
+RAM(
+	.WriteData(ReadData2_wire),
+	.Address(ALUResult_wire),
+	.MemWrite(MemWrite_wire),
+	.MemRead(MemRead_wire), 
+	.clk(clk),
+	.ReadData(RAM_OUT_wire)
+);
+//********************RAM module
+
+Multiplexer2to1
+#(
+	.NBits(32)
+)
+RAM_Mux(
+	.Selector(MemtoReg_wire),
+	.MUX_Data0(ALU_or_LUI_wire),
+	.MUX_Data1({24'b0,RAM_OUT_wire}),
+	.MUX_Output(RAM_or_LUI_wire)
+);
+//*******************RAM MUX
+//***************************************************************
 assign ALUResultOut = ALUResult_wire;
+
 //assign for mux selector to PC
 assign branch_or_jr_wire = branch_output | jr_wire;
 
