@@ -73,7 +73,7 @@ wire [4:0] WriteRegister_wire;
 wire [4:0] AddressRegister_wire;
 wire [31:0] Write2Register_wire;
 
-wire [7:0] RAM_OUT_wire;
+wire [31:0] RAM_OUT_wire;
 wire [31:0] RAM_or_LUI_wire;
 
 wire [31:0] MUX_PC_wire;
@@ -284,12 +284,12 @@ luiModule lui(
 DataMemory 
 
 #(	
-	.DATA_WIDTH(8),
+	.DATA_WIDTH(32),
 	.MEMORY_DEPTH(MEMORY_DEPTH)
 )
 RAM(
 	.WriteData(ReadData2_wire),
-	.Address(ALUResult_wire[10:2]),
+	.Address({24'b0,ALUResult_wire[10:2]}),
 	.MemWrite(MemWrite_wire),
 	.MemRead(MemRead_wire), 
 	.clk(clk),
@@ -304,7 +304,7 @@ Multiplexer2to1
 RAM_Mux(
 	.Selector(MemtoReg_wire),
 	.MUX_Data0(ALU_or_LUI_wire),
-	.MUX_Data1({24'b0,RAM_OUT_wire}),
+	.MUX_Data1(RAM_OUT_wire),
 	.MUX_Output(RAM_or_LUI_wire)
 );
 //*******************RAM MUX
