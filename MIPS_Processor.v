@@ -26,7 +26,7 @@
 ******************************************************************/
 
 module MIPS_Processor
-#(	parameter MEMORY_DEPTH = 32)
+#(	parameter MEMORY_DEPTH = 256)
 (
 	// Inputs
 	input clk,
@@ -59,6 +59,7 @@ wire branch;
 wire jump_wire;
 wire jr_wire;
 wire jal_wire;
+wire jump_or_jr_wire;
 wire branch_or_jr_wire;
 
 wire MemRead_wire;
@@ -121,7 +122,8 @@ ProgramCounter(
 
 ProgramMemory
 #(
-	.MEMORY_DEPTH(MEMORY_DEPTH)
+	.MEMORY_DEPTH(MEMORY_DEPTH),
+	.DATA_WIDTH(32)
 )
 ROMProgramMemory
 (
@@ -162,7 +164,7 @@ Multiplexer4to1
 	.NBits(32)
 )
 PC_mux(
-	.Selector({jump_wire,branch_or_jr_wire}),
+	.Selector({jump_or_jr_wire,branch_or_jr_wire}),
 	.MUX_Data0(PC_4_wire),
 	.MUX_Data1(BranchPC_wire),
 	.MUX_Data2({PC_4_wire[31:28],Instruction_wire[25:0],2'b00}), //jumpaddr
@@ -282,8 +284,8 @@ luiModule lui(
 DataMemory 
 
 #(	
-	.DATA_WIDTH(8)
-	//.MEMORY_DEPTH = 256
+	.DATA_WIDTH(8),
+	.MEMORY_DEPTH(MEMORY_DEPTH)
 )
 RAM(
 	.WriteData(ReadData2_wire),
@@ -311,5 +313,5 @@ assign ALUResultOut = ALUResult_wire;
 
 //assign for mux selector to PC
 assign branch_or_jr_wire = branch_output | jr_wire;
-
+assign jump_or_jr_wire = jump_wire | jr_wire;
 endmodule

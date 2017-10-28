@@ -25,14 +25,14 @@ module ProgramMemory
 wire [(DATA_WIDTH-1):0] RealAddress;
 
 //assign RealAddress = {2'b0,Address[(DATA_WIDTH-1):2]};
-assign RealAddress = {18'b0,Address[(DATA_WIDTH-16):2]};
+assign RealAddress = {16'b0,Address[(DATA_WIDTH-15):2]};
 
 	// Declare the ROM variable
 	reg [DATA_WIDTH-1:0] rom[MEMORY_DEPTH-1:0];
 
 	initial
 	begin
-		$readmemh("D:/Documentos/ITESO/Quartus/pract2/text.dat", rom);
+		$readmemh("F:/Documents/ITESO/Quartus/pract2/text.dat", rom);
 	end
 
 	always @ (RealAddress)
